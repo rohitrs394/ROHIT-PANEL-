@@ -1,0 +1,55 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && 
+        (request.auth.token.admin == true || 
+         request.auth.uid in ["ADMIN_UID_1", "ADMIN_UID_2"]);
+    }
+
+    // Keys collection: documents are keyed by sha256(VIP_KEY)
+    match /keys/{keyHash} {
+      // 1. Read: App clients can read a key document to validate if it exists.
+      // Or in stricter mode, client can only read specific non-sensitive status fields.
+      allow read: if true;
+
+      // 2. Create: ONLY Authenticated Administrators can create keys
+      allow create: if isAdmin() && 
+        request.resource.data.keys().hasAll(['keyId', 'status', 'createdAt', 'expiresAt', 'deviceLimit', 'boundDevices']) &&
+        request.resource.data.keyId is string &&
+        request.resource.data.status in ['ACTIVE', 'EXPIRED', 'DISABLED', 'REVOKED'] &&
+        request.resource.data.createdAt is int &&
+        request.resource.data.expiresAt is int &&
+        request.resource.data.deviceLimit is int &&
+        request.resource.data.deviceLimit >= 1 &&
+        request.resource.data.boundDevices is list;
+
+      // 3. Update: 
+      // - Admins have full update rights.
+      // - Unauthenticated / App clients can ONLY append their deviceId to boundDevices
+      //   if the key is ACTIVE and the deviceLimit has not been exceeded.
+      allow update: if isAdmin() || (
+        // Client device-binding rule:
+        resource.data.status == 'ACTIVE' &&
+        (resource.data.expiresAt <= 0 || request.time.toMillis() < resource.data.expiresAt) &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['boundDevices']) &&
+        request.resource.data.boundDevices.size() <= resource.data.deviceLimit &&
+        request.resource.data.boundDevices.hasAll(resource.data.boundDevices)
+      );
+
+      // 4. Delete: Strictly ADMIN only
+      allow delete: if isAdmin();
+    }
+
+    // Default deny for all other collections
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "ROHIT VIP PANEL",
+  "description": "Premium cyber VIP access panel with key authentication, floating overlay controls, and secure asset management.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

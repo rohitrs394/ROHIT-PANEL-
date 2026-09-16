@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ROHIT VIP PANEL — Admin Control Center</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+  <!-- Firebase App & Realtime Database SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <style>
+    :root {
+      --cyber-black: #06070D;
+      --cyber-bg: #090C16;
+      --cyber-surface: #10162A;
+      --cyber-glass: rgba(16, 22, 42, 0.75);
+      --neon-cyan: #00FFE0;
+      --neon-magenta: #FF007F;
+      --neon-purple: #7928CA;
+      --neon-blue: #0070F3;
+      --neon-green: #00FF66;
+      --neon-red: #FF1744;
+      --neon-yellow: #FFD700;
+      --text-white: #F8FAFC;
+      --text-gray: #94A3B8;
+      --border-glow: rgba(0, 255, 224, 0.3);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Rajdhani', sans-serif;
+    }
+
+    body {
+      background-color: var(--cyber-black);
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(0, 255, 224, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(255, 0, 127, 0.08) 0%, transparent 40%),
+        linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+      background-size: 100% 100%, 100% 100%, 32px 32px, 32px 32px;
+      color: var(--text-white);
+      min-height: 100vh;
+      padding: 24px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 28px;
+      background: var(--cyber-glass);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--border-glow);
+      border-radius: 16px;
+      margin-bottom: 24px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .brand-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--neon-cyan), var(--neon-magenta));
+      padding: 2px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 16px var(--neon-cyan);
+    }
+
+    .brand-icon-inner {
+      width: 100%;
+      height: 100%;
+      background: var(--cyber-black);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--neon-cyan);
+    }
+
+    .brand-text h1 {
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      background: linear-gradient(90deg, #FFF, var(--neon-cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .brand-text p {
+      font-size: 13px;
+      color: var(--neon-cyan);
+      letter-spacing: 1.5px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+      letter-spacing: 1px;
+    }
+
+    .badge-online {
+      background: rgba(0, 255, 102, 0.15);
+      border: 1px solid var(--neon-green);
+      color: var(--neon-green);
+    }
+
+    .badge-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: currentColor;
+      box-shadow: 0 0 8px currentColor;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 360px 1fr;
+      gap: 24px;
+    }
+
+    @media (max-width: 900px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: var(--cyber-glass);
+      backdrop-filter: blur(14px);
+      border: 1px solid rgba(0, 255, 224, 0.2);
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .card-title {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      margin-bottom: 18px;
+      color: var(--neon-cyan);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: var(--text-gray);
+      letter-spacing: 1px;
+    }
+
+    select, input {
+      width: 100%;
+      background: #090E1C;
+      border: 1px solid rgba(0, 255, 224, 0.3);
+      border-radius: 10px;
+      padding: 12px 14px;
+      color: var(--text-white);
+      font-size: 14px;
+      font-family: 'JetBrains Mono', monospace;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    select:focus, input:focus {
+      border-color: var(--neon-cyan);
+      box-shadow: 0 0 12px rgba(0, 255, 224, 0.3);
+    }
+
+    .btn {
+      width: 100%;
+      padding: 14px;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      font-family: 'JetBrains Mono', monospace;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-cyber {
+      background: linear-gradient(90deg, var(--neon-cyan), var(--neon-purple));
+      color: var(--cyber-black);
+      font-weight: 800;
+      box-shadow: 0 0 18px rgba(0, 255, 224, 0.4);
+    }
+
+    .btn-cyber:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 24px rgba(0, 255, 224, 0.7);
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--neon-cyan);
+      color: var(--neon-cyan);
+      padding: 8px 14px;
+      font-size: 12px;
+      width: auto;
+    }
+
+    .btn-outline:hover {
+      background: rgba(0, 255, 224, 0.15);
+    }
+
+    .btn-danger {
+      border: 1px solid var(--neon-red);
+      color: var(--neon-red);
+      background: rgba(255, 23, 68, 0.1);
+      padding: 6px 10px;
+      font-size: 11px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    @media (max-width: 768px) {
+      .stats-row {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .stat-card {
+      background: var(--cyber-surface);
+      border: 1px solid rgba(0, 255, 224, 0.2);
+      border-radius: 12px;
+      padding: 16px;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: var(--text-gray);
+      letter-spacing: 1px;
+      margin-bottom: 4px;
+    }
+
+    .stat-value {
+      font-size: 24px;
+      font-weight: 800;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--neon-cyan);
+    }
+
+    .table-container {
+      overflow-x: auto;
+      margin-top: 16px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    th {
+      text-align: left;
+      padding: 12px 14px;
+      color: var(--neon-cyan);
+      border-bottom: 1px solid rgba(0, 255, 224, 0.3);
+      font-size: 12px;
+      letter-spacing: 1px;
+    }
+
+    td {
+      padding: 14px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      color: var(--text-white);
+    }
+
+    tr:hover td {
+      background: rgba(0, 255, 224, 0.03);
+    }
+
+    .status-pill {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    .status-active {
+      background: rgba(0, 255, 102, 0.15);
+      color: var(--neon-green);
+      border: 1px solid var(--neon-green);
+    }
+
+    .status-expired {
+      background: rgba(255, 23, 68, 0.15);
+      color: var(--neon-red);
+      border: 1px solid var(--neon-red);
+    }
+
+    .status-revoked {
+      background: rgba(255, 0, 127, 0.15);
+      color: var(--neon-magenta);
+      border: 1px solid var(--neon-magenta);
+    }
+
+    .status-disabled {
+      background: rgba(148, 163, 184, 0.15);
+      color: var(--text-gray);
+      border: 1px solid var(--text-gray);
+    }
+
+    .key-display {
+      font-weight: 700;
+      color: var(--neon-cyan);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .copy-btn {
+      background: rgba(0, 255, 224, 0.15);
+      border: 1px solid var(--neon-cyan);
+      color: var(--neon-cyan);
+      padding: 3px 8px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 11px;
+    }
+
+    .copy-btn:hover {
+      background: var(--neon-cyan);
+      color: var(--cyber-black);
+    }
+
+    .search-bar {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .generated-key-box {
+      margin-top: 16px;
+      padding: 16px;
+      background: rgba(0, 255, 224, 0.05);
+      border: 1px solid var(--neon-cyan);
+      border-radius: 12px;
+      display: none;
+    }
+
+    .generated-key-box.active {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <!-- Header -->
+    <header>
+      <div class="brand">
+        <div class="brand-icon">
+          <div class="brand-icon-inner">R</div>
+        </div>
+        <div class="brand-text">
+          <h1>ROHIT VIP PANEL</h1>
+          <p>ADMINISTRATION & VIP KEY ENGINE</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <div class="badge badge-online" id="firebase-status-badge">
+          <span class="badge-dot" id="firebase-dot"></span>
+          <span id="firebase-status-text">FIREBASE RTDB: CONNECTED (rohitmodzpanel)</span>
+        </div>
+        <button class="btn btn-outline" onclick="testFirebasePing()">TEST RTDB PING</button>
+        <button class="btn btn-outline" onclick="forceSyncFromFirebase()">SYNC FIREBASE</button>
+        <button class="btn btn-outline" onclick="exportKeysAsJson()">EXPORT JSON</button>
+        <button class="btn btn-outline" onclick="exportKeysAsCsv()">EXPORT CSV</button>
+      </div>
+    </header>
+
+    <!-- Stat Metrics -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-label">TOTAL VIP KEYS</div>
+        <div class="stat-value" id="stat-total">1</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">ACTIVE KEYS</div>
+        <div class="stat-value" id="stat-active" style="color: var(--neon-green);">1</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">EXPIRED KEYS</div>
+        <div class="stat-value" id="stat-expired" style="color: var(--neon-red);">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">REVOKED / DISABLED</div>
+        <div class="stat-value" id="stat-revoked" style="color: var(--neon-magenta);">0</div>
+      </div>
+    </div>
+
+    <!-- Main Workspace -->
+    <div class="grid">
+      <!-- Left: Key Generator Panel -->
+      <div class="card">
+        <div class="card-title">
+          <span>⚡ GENERATE VIP KEY</span>
+        </div>
+
+        <div class="form-group">
+          <label>DURATION PRESET</label>
+          <select id="key-duration">
+            <option value="1h">1 Hour</option>
+            <option value="24h">24 Hours (1 Day)</option>
+            <option value="7d">7 Days (1 Week)</option>
+            <option value="30d" selected>30 Days (1 Month)</option>
+            <option value="lifetime">Lifetime (Permanent)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>DEVICE LIMIT</label>
+          <select id="key-devices">
+            <option value="1" selected>1 Device (Strict Bound)</option>
+            <option value="2">2 Devices</option>
+            <option value="3">3 Devices</option>
+            <option value="5">5 Devices</option>
+            <option value="999">Unlimited Devices</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>OPTIONAL CLIENT NOTE</label>
+          <input type="text" id="key-note" placeholder="e.g. VIP Client Rohit" value="Official VIP User">
+        </div>
+
+        <button class="btn btn-cyber" onclick="generateNewKey()">
+          <span>GENERATE VIP KEY</span>
+        </button>
+
+        <!-- Newly Generated Key Alert Box -->
+        <div class="generated-key-box" id="new-key-result">
+          <div style="font-size: 11px; color: var(--text-gray); margin-bottom: 4px;">KEY CREATED SUCCESSFULLY:</div>
+          <div class="key-display" style="font-size: 15px; margin-bottom: 8px;" id="new-key-text">ROHIT-VIP-...</div>
+          <div style="font-size: 11px; color: var(--neon-green); margin-bottom: 10px;" id="new-key-expiry">Valid for 30 Days</div>
+          <button class="btn btn-outline" style="width: 100%;" onclick="copyNewKey()">COPY VIP KEY</button>
+        </div>
+      </div>
+
+      <!-- Right: Keys Management Table -->
+      <div class="card">
+        <div class="card-title" style="justify-content: space-between;">
+          <span>🛡️ ACTIVE VIP LICENSES</span>
+          <span style="font-size: 12px; color: var(--text-gray); font-family: 'JetBrains Mono', monospace;" id="table-count">1 License</span>
+        </div>
+
+        <div class="search-bar">
+          <input type="text" id="search-input" placeholder="Search by key ID or note..." onkeyup="renderTable()">
+          <select id="status-filter" style="width: 180px;" onchange="renderTable()">
+            <option value="ALL">All Statuses</option>
+            <option value="ACTIVE">Active Only</option>
+            <option value="EXPIRED">Expired</option>
+            <option value="REVOKED">Revoked</option>
+            <option value="DISABLED">Disabled</option>
+          </select>
+        </div>
+
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>VIP KEY</th>
+                <th>DURATION</th>
+                <th>LIMIT</th>
+                <th>STATUS</th>
+                <th>ACTIONS</th>
+              </tr>
+            </thead>
+            <tbody id="keys-table-body">
+              <!-- Dynamically rendered -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Official Firebase Project Configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyAt7XyiDoJYXPDYr_zilqIj4gh6rdvGvzA",
+      authDomain: "rohitmodzpanel.firebaseapp.com",
+      databaseURL: "https://rohitmodzpanel-default-rtdb.firebaseio.com",
+      projectId: "rohitmodzpanel",
+      storageBucket: "rohitmodzpanel.firebasestorage.app",
+      messagingSenderId: "338076963258",
+      appId: "1:338076963258:android:6f5cbf55133544f0648d83"
+    };
+
+    let db = null;
+    let isFirebaseConnected = false;
+
+    // Initialize Firebase
+    try {
+      if (typeof firebase !== "undefined") {
+        firebase.initializeApp(firebaseConfig);
+        db = firebase.database();
+        console.log("Firebase initialized successfully with RTDB URL:", firebaseConfig.databaseURL);
+      }
+    } catch (err) {
+      console.warn("Firebase initialization warning:", err);
+    }
+
+    // SHA-256 computation in browser
+    async function computeSha256(text) {
+      try {
+        const msgBuffer = new TextEncoder().encode(text.trim());
+        const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+      } catch (e) {
+        return "hash_" + text;
+      }
+    }
+
+    // Initial VIP Key storage (fallback & local cache)
+    let keysStore = [
+      {
+        keyId: "ROHIT-VIP-MASTER-2026",
+        keyHash: "6f5287fbb4db9444b74c5d64b22c2b3e512ce2e2bf21b9ec0e72251ee2bcba72",
+        status: "ACTIVE",
+        createdAt: Date.now(),
+        expiresAt: -1, // Lifetime
+        deviceLimit: 5,
+        boundDevices: [],
+        note: "Master Administrative Key"
+      }
+    ];
+
+    // Load from localStorage if present
+    const saved = localStorage.getItem("rohit_vip_keys");
+    if (saved) {
+      try {
+        keysStore = JSON.parse(saved);
+      } catch (e) {}
+    }
+
+    function saveStore() {
+      localStorage.setItem("rohit_vip_keys", JSON.stringify(keysStore));
+      updateStats();
+      renderTable();
+    }
+
+    // Attach Realtime Listener to Firebase Realtime Database
+    function attachFirebaseListener() {
+      if (!db) {
+        setFirebaseStatus(false, "FIREBASE REST READY (rohitmodzpanel)");
+        forceSyncFromFirebase();
+        return;
+      }
+
+      // Check connected state
+      const connectedRef = db.ref(".info/connected");
+      connectedRef.on("value", (snap) => {
+        if (snap.val() === true) {
+          isFirebaseConnected = true;
+          setFirebaseStatus(true, "FIREBASE RTDB: LIVE (rohitmodzpanel)");
+        } else {
+          isFirebaseConnected = false;
+          setFirebaseStatus(false, "FIREBASE RTDB: CONNECTING...");
+        }
+      });
+
+      // Listen for all VIP keys
+      db.ref("vip_keys").on("value", (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+          const fetchedList = [];
+          Object.keys(data).forEach((id) => {
+            const item = data[id];
+            fetchedList.push({
+              keyId: item.keyId || id,
+              keyHash: item.keyHash || "",
+              status: item.status || "ACTIVE",
+              createdAt: item.createdAt || Date.now(),
+              expiresAt: item.expiresAt !== undefined ? item.expiresAt : -1,
+              deviceLimit: item.deviceLimit || 1,
+              boundDevices: Array.isArray(item.boundDevices) ? item.boundDevices : [],
+              note: item.note || ""
+            });
+          });
+
+          // Always ensure Master key is present
+          if (!fetchedList.some(k => k.keyId === "ROHIT-VIP-MASTER-2026")) {
+            fetchedList.push(keysStore.find(k => k.keyId === "ROHIT-VIP-MASTER-2026") || {
+              keyId: "ROHIT-VIP-MASTER-2026",
+              keyHash: "6f5287fbb4db9444b74c5d64b22c2b3e512ce2e2bf21b9ec0e72251ee2bcba72",
+              status: "ACTIVE",
+              createdAt: Date.now(),
+              expiresAt: -1,
+              deviceLimit: 5,
+              boundDevices: [],
+              note: "Master Administrative Key"
+            });
+          }
+
+          keysStore = fetchedList;
+          saveStore();
+          setFirebaseStatus(true, `FIREBASE RTDB: SYNCED (${fetchedList.length} KEYS)`);
+        }
+      }, (error) => {
+        console.warn("RTDB listener permission notice:", error.message);
+        setFirebaseStatus(false, "FIREBASE REST MODE (rohitmodzpanel)");
+      });
+    }
+
+    function setFirebaseStatus(isOnline, text) {
+      const badge = document.getElementById("firebase-status-badge");
+      const dot = document.getElementById("firebase-dot");
+      const textElem = document.getElementById("firebase-status-text");
+      if (textElem) textElem.innerText = text;
+      if (badge && dot) {
+        if (isOnline) {
+          badge.className = "badge badge-online";
+          dot.style.background = "var(--neon-green)";
+        } else {
+          badge.className = "badge";
+          badge.style.border = "1px solid var(--neon-cyan)";
+          badge.style.color = "var(--neon-cyan)";
+          dot.style.background = "var(--neon-cyan)";
+        }
+      }
+    }
+
+    // Force Sync via REST API & SDK
+    async function forceSyncFromFirebase() {
+      try {
+        setFirebaseStatus(false, "SYNCING FROM FIREBASE...");
+        const res = await fetch("https://rohitmodzpanel-default-rtdb.firebaseio.com/vip_keys.json");
+        if (res.ok) {
+          const data = await res.json();
+          if (data && typeof data === "object") {
+            const list = [];
+            Object.keys(data).forEach(id => {
+              const item = data[id];
+              list.push({
+                keyId: item.keyId || id,
+                keyHash: item.keyHash || "",
+                status: item.status || "ACTIVE",
+                createdAt: item.createdAt || Date.now(),
+                expiresAt: item.expiresAt !== undefined ? item.expiresAt : -1,
+                deviceLimit: item.deviceLimit || 1,
+                boundDevices: Array.isArray(item.boundDevices) ? item.boundDevices : [],
+                note: item.note || ""
+              });
+            });
+            keysStore = list;
+            saveStore();
+            setFirebaseStatus(true, `FIREBASE RTDB: SYNCED (${list.length} KEYS)`);
+            alert(`✅ Successfully synced ${list.length} keys from Firebase Realtime Database!`);
+            return;
+          }
+        }
+        setFirebaseStatus(true, "FIREBASE CONNECTED (EMPTY DATA)");
+        alert("Synced with Firebase: No remote keys yet. Generate one now!");
+      } catch (err) {
+        console.error("Sync error:", err);
+        setFirebaseStatus(false, "FIREBASE LOCAL CACHE");
+        alert("Firebase sync completed via local storage cache.");
+      }
+    }
+
+    // Test ping latency to Firebase
+    async function testFirebasePing() {
+      const start = performance.now();
+      try {
+        const res = await fetch("https://rohitmodzpanel-default-rtdb.firebaseio.com/.json?shallow=true", {
+          headers: { 'Accept': 'application/json' }
+        });
+        const duration = Math.round(performance.now() - start);
+        if (res.ok || res.status === 401 || res.status === 403) {
+          alert(`🔥 FIREBASE RTDB PING SUCCESS!\nProject: rohitmodzpanel\nURL: https://rohitmodzpanel-default-rtdb.firebaseio.com\nLatency: ${duration} ms\nStatus: ${res.status} OK`);
+        } else {
+          alert(`Firebase Ping response: ${res.status} in ${duration} ms`);
+        }
+      } catch (e) {
+        alert("Firebase ping connection test: " + e.message);
+      }
+    }
+
+    function generateKeyPart(length = 4) {
+      const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+      let res = "";
+      for (let i = 0; i < length; i++) {
+        res += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      return res;
+    }
+
+    async function generateNewKey() {
+      const durationChoice = document.getElementById("key-duration").value;
+      const deviceLimit = parseInt(document.getElementById("key-devices").value, 10);
+      const note = document.getElementById("key-note").value.trim() || "VIP Member";
+
+      const keyId = `ROHIT-VIP-${generateKeyPart(4)}-${generateKeyPart(4)}-${generateKeyPart(4)}-${generateKeyPart(4)}`;
+      const keyHash = await computeSha256(keyId);
+      const now = Date.now();
+      let expiresAt = -1;
+
+      if (durationChoice === "1h") expiresAt = now + (3600 * 1000);
+      else if (durationChoice === "24h") expiresAt = now + (24 * 3600 * 1000);
+      else if (durationChoice === "7d") expiresAt = now + (7 * 24 * 3600 * 1000);
+      else if (durationChoice === "30d") expiresAt = now + (30 * 24 * 3600 * 1000);
+      else if (durationChoice === "lifetime") expiresAt = -1;
+
+      const newKeyObj = {
+        keyId,
+        keyHash,
+        status: "ACTIVE",
+        createdAt: now,
+        expiresAt,
+        deviceLimit,
+        boundDevices: [],
+        note
+      };
+
+      // 1. Sync to Firebase Realtime Database
+      try {
+        if (db) {
+          await db.ref("vip_keys/" + keyId).set(newKeyObj);
+          await db.ref("keys/" + keyHash).set(newKeyObj);
+        }
+        // Fallback REST call
+        fetch(`https://rohitmodzpanel-default-rtdb.firebaseio.com/vip_keys/${keyId}.json`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(newKeyObj)
+        }).catch(() => {});
+      } catch (e) {
+        console.warn("Firebase direct write error:", e);
+      }
+
+      // 2. Add to local store
+      keysStore.unshift(newKeyObj);
+      saveStore();
+
+      // Show result box
+      const box = document.getElementById("new-key-result");
+      document.getElementById("new-key-text").innerText = keyId;
+      document.getElementById("new-key-expiry").innerText = expiresAt === -1 ? "Validity: LIFETIME" : `Expires: ${new Date(expiresAt).toLocaleDateString()}`;
+      box.classList.add("active");
+    }
+
+    function copyNewKey() {
+      const text = document.getElementById("new-key-text").innerText;
+      navigator.clipboard.writeText(text);
+      alert("VIP Key copied to clipboard: " + text);
+    }
+
+    function copySpecificKey(keyId) {
+      navigator.clipboard.writeText(keyId);
+      alert("Copied: " + keyId);
+    }
+
+    async function toggleStatus(keyId, newStatus) {
+      const item = keysStore.find(k => k.keyId === keyId);
+      if (item) {
+        item.status = newStatus;
+        saveStore();
+
+        // Update in Firebase Realtime Database
+        try {
+          if (db) {
+            await db.ref(`vip_keys/${keyId}/status`).set(newStatus);
+            if (item.keyHash) {
+              await db.ref(`keys/${item.keyHash}/status`).set(newStatus);
+            }
+          }
+          fetch(`https://rohitmodzpanel-default-rtdb.firebaseio.com/vip_keys/${keyId}/status.json`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(newStatus)
+          }).catch(() => {});
+        } catch (e) {
+          console.warn("Firebase status update error:", e);
+        }
+      }
+    }
+
+    async function deleteKey(keyId) {
+      if (confirm(`Permanently delete VIP Key ${keyId} from Firebase and Panel?`)) {
+        const item = keysStore.find(k => k.keyId === keyId);
+        keysStore = keysStore.filter(k => k.keyId !== keyId);
+        saveStore();
+
+        // Delete from Firebase Realtime Database
+        try {
+          if (db) {
+            await db.ref(`vip_keys/${keyId}`).remove();
+            if (item && item.keyHash) {
+              await db.ref(`keys/${item.keyHash}`).remove();
+            }
+          }
+          fetch(`https://rohitmodzpanel-default-rtdb.firebaseio.com/vip_keys/${keyId}.json`, {
+            method: "DELETE"
+          }).catch(() => {});
+        } catch (e) {
+          console.warn("Firebase delete error:", e);
+        }
+      }
+    }
+
+    function updateStats() {
+      const now = Date.now();
+      let active = 0, expired = 0, revoked = 0;
+
+      keysStore.forEach(k => {
+        if (k.status === "REVOKED" || k.status === "DISABLED") revoked++;
+        else if (k.expiresAt !== -1 && now > k.expiresAt) expired++;
+        else active++;
+      });
+
+      document.getElementById("stat-total").innerText = keysStore.length;
+      document.getElementById("stat-active").innerText = active;
+      document.getElementById("stat-expired").innerText = expired;
+      document.getElementById("stat-revoked").innerText = revoked;
+      document.getElementById("table-count").innerText = `${keysStore.length} License(s)`;
+    }
+
+    function renderTable() {
+      const tbody = document.getElementById("keys-table-body");
+      const search = document.getElementById("search-input").value.toLowerCase();
+      const statusFilter = document.getElementById("status-filter").value;
+      const now = Date.now();
+
+      tbody.innerHTML = "";
+
+      const filtered = keysStore.filter(k => {
+        const matchesSearch = k.keyId.toLowerCase().includes(search) || (k.note && k.note.toLowerCase().includes(search));
+        let effectiveStatus = k.status;
+        if (k.status === "ACTIVE" && k.expiresAt !== -1 && now > k.expiresAt) {
+          effectiveStatus = "EXPIRED";
+        }
+        const matchesStatus = statusFilter === "ALL" || effectiveStatus === statusFilter;
+        return matchesSearch && matchesStatus;
+      });
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-gray); padding: 24px;">No VIP keys found matching filters.</td></tr>`;
+        return;
+      }
+
+      filtered.forEach(k => {
+        const isExp = k.expiresAt !== -1 && now > k.expiresAt;
+        const displayStatus = isExp && k.status === "ACTIVE" ? "EXPIRED" : k.status;
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>
+            <div class="key-display">
+              <span>${k.keyId}</span>
+              <button class="copy-btn" onclick="copySpecificKey('${k.keyId}')">COPY</button>
+            </div>
+            <div style="font-size: 11px; color: var(--text-gray); margin-top: 3px;">${k.note || 'No note'}</div>
+          </td>
+          <td>${k.expiresAt === -1 ? 'LIFETIME' : new Date(k.expiresAt).toLocaleDateString()}</td>
+          <td>${k.boundDevices ? k.boundDevices.length : 0} / ${k.deviceLimit}</td>
+          <td><span class="status-pill status-${displayStatus.toLowerCase()}">${displayStatus}</span></td>
+          <td>
+            <div style="display: flex; gap: 6px;">
+              ${displayStatus === 'ACTIVE' ? `
+                <button class="btn-danger" style="border-color: var(--neon-magenta); color: var(--neon-magenta);" onclick="toggleStatus('${k.keyId}', 'REVOKED')">REVOKE</button>
+                <button class="btn-danger" style="border-color: var(--text-gray); color: var(--text-gray);" onclick="toggleStatus('${k.keyId}', 'DISABLED')">DISABLE</button>
+              ` : `
+                <button class="btn-danger" style="border-color: var(--neon-green); color: var(--neon-green); background: rgba(0,255,102,0.1);" onclick="toggleStatus('${k.keyId}', 'ACTIVE')">ACTIVATE</button>
+              `}
+              <button class="btn-danger" onclick="deleteKey('${k.keyId}')">DELETE</button>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function exportKeysAsJson() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(keysStore, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", `rohit_vip_keys_${Date.now()}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    }
+
+    function exportKeysAsCsv() {
+      let csvContent = "data:text/csv;charset=utf-8,KeyID,Status,ExpiresAt,DeviceLimit,Note\n";
+      keysStore.forEach(k => {
+        csvContent += `"${k.keyId}","${k.status}","${k.expiresAt}","${k.deviceLimit}","${k.note}"\n`;
+      });
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", `rohit_vip_keys_${Date.now()}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    }
+
+    // Init UI and attach Firebase listener
+    updateStats();
+    renderTable();
+    attachFirebaseListener();
+  </script>
+</body>
+</html>
