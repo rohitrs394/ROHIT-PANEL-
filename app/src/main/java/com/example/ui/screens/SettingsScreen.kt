@@ -51,14 +51,21 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.extraction.ZipAssetExtractor
+import com.example.security.PermissionManager
 import com.example.security.SessionManager
 import com.example.service.FloatingOverlayService
 import com.example.ui.components.CyberButton
 import com.example.ui.components.CyberParticles
 import com.example.ui.components.GlassCard
+import com.example.ui.components.ThreeDButton
+import com.example.ui.components.ThreeDCard
+import com.example.ui.components.ThreeDHorizonBackground
 import com.example.ui.theme.CyberBlack
 import com.example.ui.theme.CyberSurface
+import com.example.ui.theme.GoldMetallic3D
+import com.example.ui.theme.NeonCrimson
 import com.example.ui.theme.NeonCyan
+import com.example.ui.theme.NeonGold
 import com.example.ui.theme.NeonGreen
 import com.example.ui.theme.NeonMagenta
 import com.example.ui.theme.NeonPurple
@@ -103,6 +110,7 @@ fun SettingsScreen(
       .fillMaxSize()
       .background(CyberBlack)
   ) {
+    ThreeDHorizonBackground()
     CyberParticles(particleCount = 15)
 
     Column(
@@ -313,6 +321,82 @@ fun SettingsScreen(
               )
             }
           }
+        }
+      }
+
+      Spacer(modifier = Modifier.height(20.dp))
+
+      // Shizuku Superuser & Wireless Debugging
+      Text(
+        text = "SHIZUKU PRIVILEGED AUTOMATION",
+        color = NeonGold,
+        fontSize = 11.sp,
+        fontWeight = FontWeight.Bold,
+        letterSpacing = 1.sp,
+        fontFamily = FontFamily.Monospace
+      )
+
+      Spacer(modifier = Modifier.height(10.dp))
+
+      val isShizukuInstalled = PermissionManager.isShizukuInstalled(context)
+      ThreeDCard(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        elevation = 12.dp
+      ) {
+        Column(modifier = Modifier.fillMaxWidth()) {
+          Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+          ) {
+            Column {
+              Text(
+                text = "Shizuku Service Status",
+                color = TextWhite,
+                fontSize = 13.sp,
+                fontWeight = FontWeight.Bold
+              )
+              Text(
+                text = if (isShizukuInstalled) "INSTALLED & AVAILABLE" else "NOT DETECTED",
+                color = if (isShizukuInstalled) NeonGreen else NeonCrimson,
+                fontSize = 11.sp,
+                fontWeight = FontWeight.Bold,
+                fontFamily = FontFamily.Monospace
+              )
+            }
+
+            Box(
+              modifier = Modifier
+                .clip(RoundedCornerShape(8.dp))
+                .background(if (isShizukuInstalled) NeonGreen.copy(alpha = 0.15f) else NeonCrimson.copy(alpha = 0.15f))
+                .border(1.dp, if (isShizukuInstalled) NeonGreen else NeonCrimson, RoundedCornerShape(8.dp))
+                .padding(horizontal = 8.dp, vertical = 4.dp)
+            ) {
+              Text(
+                text = if (isShizukuInstalled) "SHIZUKU OK" else "INSTALL REQUIRED",
+                color = if (isShizukuInstalled) NeonGreen else NeonCrimson,
+                fontSize = 9.sp,
+                fontWeight = FontWeight.Black,
+                fontFamily = FontFamily.Monospace
+              )
+            }
+          }
+
+          Spacer(modifier = Modifier.height(12.dp))
+
+          ThreeDButton(
+            text = if (isShizukuInstalled) "AUTO-GRANT VIA SHIZUKU" else "DOWNLOAD SHIZUKU APP",
+            onClick = {
+              if (isShizukuInstalled) {
+                val res = PermissionManager.autoGrantFilesPermission(context)
+                Toast.makeText(context, res.message, Toast.LENGTH_LONG).show()
+              } else {
+                PermissionManager.openShizukuApp(context)
+              }
+            },
+            height = 46.dp
+          )
         }
       }
 

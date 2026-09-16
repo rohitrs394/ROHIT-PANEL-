@@ -23,7 +23,17 @@ class SessionManager(context: Context) {
     private const val KEY_SERVICE_RUNNING = "is_service_running"
     private const val KEY_MOD_ACTIVE = "is_mod_active"
     private const val KEY_WIRELESS_PAIRED = "is_wireless_paired"
+    private const val KEY_USER_NAME = "user_name"
+    private const val KEY_NOTE = "key_note"
   }
+
+  var userName: String
+    get() = prefs.getString(KEY_USER_NAME, "") ?: ""
+    set(value) = prefs.edit().putString(KEY_USER_NAME, value).apply()
+
+  var note: String
+    get() = prefs.getString(KEY_NOTE, "") ?: ""
+    set(value) = prefs.edit().putString(KEY_NOTE, value).apply()
 
   var isModActive: Boolean
     get() = prefs.getBoolean(KEY_MOD_ACTIVE, false)
@@ -84,6 +94,8 @@ class SessionManager(context: Context) {
       putString(KEY_STATUS, key.effectiveStatus.name)
       putLong(KEY_EXPIRES_AT, key.expiresAt)
       putLong(KEY_CREATED_AT, key.createdAt)
+      putString(KEY_USER_NAME, key.userName)
+      putString(KEY_NOTE, key.note)
       apply()
     }
   }
@@ -95,7 +107,9 @@ class SessionManager(context: Context) {
       keyHash = CryptoUtils.sha256(keyId),
       status = keyStatus,
       createdAt = createdAt,
-      expiresAt = expiresAt
+      expiresAt = expiresAt,
+      userName = userName,
+      note = note
     )
   }
 

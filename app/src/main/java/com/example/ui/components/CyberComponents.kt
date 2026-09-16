@@ -716,3 +716,105 @@ fun CyberParticles(
     }
   }
 }
+
+/**
+ * 3D Executive Perspective Horizon Canvas Background.
+ * Renders a futuristic 3D perspective grid vanishing into the horizon with dynamic
+ * forward motion, specular glow, and ambient depth lighting.
+ */
+@Composable
+fun ThreeDHorizonBackground(
+  modifier: Modifier = Modifier,
+  accentColor: Color = NeonGold,
+  secondaryColor: Color = NeonCrimson
+) {
+  val transition = rememberInfiniteTransition(label = "3d_horizon_flow")
+  val gridFlow by transition.animateFloat(
+    initialValue = 0f,
+    targetValue = 1f,
+    animationSpec = infiniteRepeatable(
+      animation = tween(durationMillis = 4000, easing = LinearEasing),
+      repeatMode = RepeatMode.Restart
+    ),
+    label = "grid_flow"
+  )
+
+  Canvas(modifier = modifier.fillMaxSize()) {
+    val w = size.width
+    val h = size.height
+    val horizonY = h * 0.40f // Vanishing point horizon
+
+    // 1. Deep Space 3D Radial Background
+    drawRect(
+      brush = Brush.radialGradient(
+        colors = listOf(
+          secondaryColor.copy(alpha = 0.09f),
+          accentColor.copy(alpha = 0.05f),
+          CyberBackground
+        ),
+        center = Offset(w * 0.5f, horizonY),
+        radius = w * 0.85f
+      )
+    )
+
+    // 2. Horizon glowing beam
+    drawLine(
+      brush = Brush.horizontalGradient(
+        colors = listOf(
+          Color.Transparent,
+          accentColor.copy(alpha = 0.5f),
+          secondaryColor.copy(alpha = 0.6f),
+          accentColor.copy(alpha = 0.5f),
+          Color.Transparent
+        )
+      ),
+      start = Offset(0f, horizonY),
+      end = Offset(w, horizonY),
+      strokeWidth = 2.dp.toPx()
+    )
+
+    // 3. Perspective lines radiating from horizon center
+    val vanishingX = w * 0.5f
+    val perspectiveDivisions = 12
+    for (i in -perspectiveDivisions..perspectiveDivisions) {
+      val bottomX = vanishingX + (i.toFloat() / perspectiveDivisions) * (w * 1.6f)
+      val alpha = (1f - (kotlin.math.abs(i).toFloat() / perspectiveDivisions) * 0.6f).coerceIn(0.08f, 0.35f)
+      drawLine(
+        brush = Brush.verticalGradient(
+          colors = listOf(
+            accentColor.copy(alpha = 0.02f),
+            if (i % 2 == 0) accentColor.copy(alpha = alpha * 0.35f) else secondaryColor.copy(alpha = alpha * 0.25f)
+          ),
+          startY = horizonY,
+          endY = h
+        ),
+        start = Offset(vanishingX + (i * 10f), horizonY),
+        end = Offset(bottomX, h),
+        strokeWidth = 1.2.dp.toPx()
+      )
+    }
+
+    // 4. Horizontal Grid Lines converging in perspective (logarithmic scale)
+    val horizontalLines = 10
+    for (j in 1..horizontalLines) {
+      val t = ((j.toFloat() + gridFlow) / (horizontalLines + 1))
+      val y = horizonY + (t * t) * (h - horizonY)
+      val lineAlpha = (t * 0.4f).coerceIn(0.05f, 0.4f)
+      val spread = (t * 0.85f).coerceAtLeast(0.1f)
+      drawLine(
+        brush = Brush.horizontalGradient(
+          colors = listOf(
+            Color.Transparent,
+            accentColor.copy(alpha = lineAlpha),
+            secondaryColor.copy(alpha = lineAlpha * 0.8f),
+            accentColor.copy(alpha = lineAlpha),
+            Color.Transparent
+          )
+        ),
+        start = Offset(w * (0.5f - spread), y),
+        end = Offset(w * (0.5f + spread), y),
+        strokeWidth = (1f + t * 1.5f).dp.toPx()
+      )
+    }
+  }
+}

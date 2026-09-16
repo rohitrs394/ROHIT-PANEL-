@@ -17,7 +17,8 @@ data class VipKey(
   val deviceLimit: Int = 1,
   val boundDevices: List<String> = emptyList(),
   val createdBy: String = "ROHIT_ADMIN",
-  val note: String = ""
+  val note: String = "",
+  val userName: String = ""
 ) {
   val isLifetime: Boolean
     get() = expiresAt <= 0L
@@ -32,6 +33,23 @@ data class VipKey(
       isExpired -> KeyStatus.EXPIRED
       else -> KeyStatus.ACTIVE
     }
+
+  fun getGreetingName(): String {
+    if (userName.isNotBlank()) return userName.trim()
+    if (note.isNotBlank()) {
+      val clean = note
+        .replace(Regex("(?i)official\\s*vip\\s*user"), "")
+        .replace(Regex("(?i)vip\\s*client"), "")
+        .replace(Regex("(?i)vip\\s*member"), "")
+        .replace(Regex("(?i)vip"), "")
+        .replace(Regex("(?i)client"), "")
+        .replace(Regex("(?i)user:?"), "")
+        .replace(Regex("(?i)member"), "")
+        .trim()
+      if (clean.isNotBlank()) return clean
+    }
+    return ""
+  }
 
   fun getRemainingTimeFormatted(): String {
     if (isLifetime) return "LIFETIME ACCESS"

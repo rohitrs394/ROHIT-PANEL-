@@ -84,7 +84,9 @@ import com.example.ui.components.StatusType
 import com.example.ui.components.ThreeDButton
 import com.example.ui.components.ThreeDCard
 import com.example.ui.components.ThreeDCrest
+import com.example.ui.components.ThreeDHorizonBackground
 import com.example.ui.components.rememberRgbBrush
+import com.example.util.VoiceGreetingHelper
 import com.example.ui.theme.CrimsonGoldGradient
 import com.example.ui.theme.CrimsonMetallic3D
 import com.example.ui.theme.CyberBlack
@@ -170,6 +172,8 @@ fun LoginScreen(
       when (result) {
         is KeyValidationResult.Success -> {
           sessionManager.saveSession(result.key, rememberKey)
+          val greetingName = result.key.getGreetingName()
+          VoiceGreetingHelper.speakLoginWelcome(context, greetingName)
           onLoginSuccess(result.key)
         }
         is KeyValidationResult.InvalidKey -> {
@@ -291,7 +295,8 @@ fun LoginScreen(
       .fillMaxSize()
       .background(CyberBlack)
   ) {
-    CyberParticles(particleCount = 20)
+    ThreeDHorizonBackground()
+    CyberParticles(particleCount = 18)
 
     Column(
       modifier = Modifier

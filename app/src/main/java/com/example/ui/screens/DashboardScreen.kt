@@ -97,8 +97,10 @@ import com.example.ui.components.StatusType
 import com.example.ui.components.ThreeDButton
 import com.example.ui.components.ThreeDCard
 import com.example.ui.components.ThreeDCrest
+import com.example.ui.components.ThreeDHorizonBackground
 import com.example.ui.components.ThreeDVipCard
 import com.example.ui.components.rememberRgbBrush
+import com.example.util.VoiceGreetingHelper
 import com.example.ui.theme.CrimsonGoldGradient
 import com.example.ui.theme.CrimsonMetallic3D
 import com.example.ui.theme.CyberBlack
@@ -176,7 +178,8 @@ fun DashboardScreen(
       .fillMaxSize()
       .background(CyberBlack)
   ) {
-    CyberParticles(particleCount = 20)
+    ThreeDHorizonBackground()
+    CyberParticles(particleCount = 18)
 
     Column(
       modifier = Modifier
@@ -270,6 +273,74 @@ fun DashboardScreen(
         vipKey = vipKey,
         deviceId = CryptoUtils.getDeviceId(context)
       )
+
+      // 3D Official Voice Greeting Badge
+      val displayGreetingName = vipKey.getGreetingName().ifBlank { sessionManager.userName }
+      if (displayGreetingName.isNotBlank()) {
+        Spacer(modifier = Modifier.height(14.dp))
+        ThreeDCard(
+          modifier = Modifier
+            .fillMaxWidth()
+            .clickable {
+              VoiceGreetingHelper.speakLoginWelcome(context, displayGreetingName)
+            },
+          shape = RoundedCornerShape(14.dp),
+          borderBrush = Brush.horizontalGradient(listOf(NeonGold, NeonCrimson)),
+          elevation = 10.dp
+        ) {
+          Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+          ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+              Box(
+                modifier = Modifier
+                  .size(34.dp)
+                  .clip(CircleShape)
+                  .background(GoldMetallic3D),
+                contentAlignment = Alignment.Center
+              ) {
+                Text("👑", fontSize = 16.sp)
+              }
+              Spacer(modifier = Modifier.width(10.dp))
+              Column {
+                Text(
+                  text = "WELCOME ${displayGreetingName.uppercase()} BABY",
+                  color = NeonGold,
+                  fontSize = 13.sp,
+                  fontWeight = FontWeight.Black,
+                  letterSpacing = 1.sp,
+                  fontFamily = FontFamily.Monospace
+                )
+                Text(
+                  text = "VOICE PROFILE LOADED • TAP TO REPLAY",
+                  color = com.example.ui.theme.TextGray,
+                  fontSize = 9.sp,
+                  fontWeight = FontWeight.Bold,
+                  letterSpacing = 0.8.sp,
+                  fontFamily = FontFamily.Monospace
+                )
+              }
+            }
+
+            Box(
+              modifier = Modifier
+                .clip(RoundedCornerShape(8.dp))
+                .background(CrimsonMetallic3D)
+                .padding(horizontal = 8.dp, vertical = 4.dp)
+            ) {
+              Text(
+                text = "REPLAY 🔊",
+                color = com.example.ui.theme.TextWhite,
+                fontSize = 9.sp,
+                fontWeight = FontWeight.Black,
+                fontFamily = FontFamily.Monospace
+              )
+            }
+          }
+        }
+      }
 
       Spacer(modifier = Modifier.height(18.dp))
 

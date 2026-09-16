@@ -4,43 +4,104 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <!-- Hexagonal cyber shield outer glow -->
+
+    <!-- 3D Shadow Layer of the Shield -->
     <path
-        android:strokeWidth="2.5"
-        android:strokeColor="#00FFE0"
-        android:fillColor="#2200FFE0"
-        android:pathData="M54,22 L84,36 L84,68 L54,86 L24,68 L24,36 Z" />
-    <!-- Inner shield with magenta-cyan gradient -->
+        android:fillColor="#80000000"
+        android:pathData="M54,26 L80,39 L80,69 L54,87 L28,69 L28,39 Z" />
+
+    <!-- Outer 3D Gold Bevel Shield -->
     <path
-        android:pathData="M54,26 L80,38 L80,65 L54,81 L28,65 L28,38 Z">
+        android:pathData="M54,23 L80,36 L80,66 L54,84 L28,66 L28,36 Z">
         <aapt:attr name="android:fillColor">
             <gradient
                 android:startX="28"
-                android:startY="26"
+                android:startY="23"
                 android:endX="80"
-                android:endY="81"
+                android:endY="84"
                 android:type="linear">
-                <item android:offset="0.0" android:color="#FF007F" />
-                <item android:offset="0.5" android:color="#7928CA" />
-                <item android:offset="1.0" android:color="#00D2FF" />
+                <item android:offset="0.0" android:color="#FFF3B0" />
+                <item android:offset="0.3" android:color="#E6B800" />
+                <item android:offset="0.7" android:color="#996B00" />
+                <item android:offset="1.0" android:color="#FFE57F" />
             </gradient>
         </aapt:attr>
     </path>
-    <!-- VIP Crown / Emblem -->
-    <!-- Crown base -->
+
+    <!-- Inner 3D Ruby-Crimson Core Shield -->
     <path
-        android:fillColor="#FFDF00"
-        android:pathData="M38,58 L70,58 L68,63 L40,63 Z" />
-    <!-- Crown peaks -->
+        android:pathData="M54,27 L76,38 L76,64 L54,79 L32,64 L32,38 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:startX="32"
+                android:startY="27"
+                android:endX="76"
+                android:endY="79"
+                android:type="linear">
+                <item android:offset="0.0" android:color="#FF3366" />
+                <item android:offset="0.5" android:color="#B8002E" />
+                <item android:offset="1.0" android:color="#4A0010" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Top Specular Highlight on Inner Shield -->
     <path
-        android:fillColor="#FFDF00"
-        android:pathData="M36,44 L43,55 L54,42 L65,55 L72,44 L69,57 L39,57 Z" />
-    <!-- Star jewels -->
+        android:strokeWidth="1.2"
+        android:strokeColor="#60FFFFFF"
+        android:fillColor="#00000000"
+        android:pathData="M34,39 L54,28 L74,39" />
+
+    <!-- 3D Golden VIP Crown -->
+    <!-- Crown Base -->
     <path
-        android:fillColor="#00FFE0"
-        android:pathData="M54,34 L55.5,38.5 L60,40 L55.5,41.5 L54,46 L52.5,41.5 L48,40 L52.5,38.5 Z" />
-    <!-- VIP letter 'V' stylised -->
+        android:fillColor="#FFD700"
+        android:pathData="M42,54 L66,54 L64,57 L44,57 Z" />
+
+    <!-- Crown Peaks -->
+    <path
+        android:pathData="M41,43 L47,52 L54,40 L61,52 L67,43 L65,54 L43,54 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:startX="41"
+                android:startY="40"
+                android:endX="67"
+                android:endY="54"
+                android:type="linear">
+                <item android:offset="0.0" android:color="#FFF8DC" />
+                <item android:offset="0.5" android:color="#FFD700" />
+                <item android:offset="1.0" android:color="#CC9900" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Crown Central Gem -->
     <path
         android:fillColor="#FFFFFF"
-        android:pathData="M47,67 L51,67 L54,75 L57,67 L61,67 L56,78 L52,78 Z" />
+        android:pathData="M54,36 L55.5,39 L58,40 L55.5,41 L54,44 L52.5,41 L50,40 L52.5,39 Z" />
+
+    <!-- Bold 3D 'R' Monogram -->
+    <!-- R vertical bar -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M46,60 L50,60 L50,74 L46,74 Z" />
+
+    <!-- R loop -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M50,60 L58,60 C61,60 63,61.5 63,64.5 C63,67.5 61,69 58,69 L50,69 Z M50,62.5 L50,66.5 L57,66.5 C58.5,66.5 59.5,65.7 59.5,64.5 C59.5,63.3 58.5,62.5 57,62.5 Z" />
+
+    <!-- R diagonal leg -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M54.5,68 L62,74 L58,74 L51.5,68 Z" />
+
+    <!-- Little Gold Stars around the Emblem -->
+    <path
+        android:fillColor="#FFE680"
+        android:pathData="M38,40 L38.8,41.5 L40.5,42 L38.8,42.5 L38,44 L37.2,42.5 L35.5,42 L37.2,41.5 Z" />
+
+    <path
+        android:fillColor="#FFE680"
+        android:pathData="M70,40 L70.8,41.5 L72.5,42 L70.8,42.5 L70,44 L69.2,42.5 L67.5,42 L69.2,41.5 Z" />
 </vector>

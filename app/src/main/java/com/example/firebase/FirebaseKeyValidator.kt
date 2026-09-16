@@ -115,8 +115,10 @@ object FirebaseKeyValidator {
    * Checks both SDK and REST API.
    */
   private suspend fun fetchKeyFromRealtimeDb(keyId: String, keyHash: String): VipKey? {
-    // Try RTDB REST API first for ultra-fast response
-    val keyFromRest = fetchKeyViaRest(keyId) ?: fetchKeyViaRest(keyHash)
+    // Try RTDB REST API first for ultra-fast response (check keyId, uppercase keyId, and hash)
+    val keyFromRest = fetchKeyViaRest(keyId)
+      ?: fetchKeyViaRest(keyId.uppercase())
+      ?: fetchKeyViaHashRest(keyHash)
     if (keyFromRest != null) return keyFromRest
 
     // Try RTDB Android SDK
@@ -136,6 +138,10 @@ object FirebaseKeyValidator {
                 val createdAt = snapshot.child("createdAt").getValue(Long::class.java) ?: System.currentTimeMillis()
                 val deviceLimit = snapshot.child("deviceLimit").getValue(Long::class.java)?.toInt() ?: 1
                 val note = snapshot.child("note").getValue(String::class.java) ?: ""
+                val userName = snapshot.child("userName").getValue(String::class.java)
+                  ?: snapshot.child("username").getValue(String::class.java)
+                  ?: snapshot.child("name").getValue(String::class.java)
+                  ?: ""
 
                 val boundList = mutableListOf<String>()
                 snapshot.child("boundDevices").children.forEach { child ->
@@ -152,7 +158,8 @@ object FirebaseKeyValidator {
                     deviceLimit = deviceLimit,
                     boundDevices = boundList,
                     createdBy = "FIREBASE_RTDB",
-                    note = note
+                    note = note,
+                    userName = userName
                   )
                 )
               } else {
@@ -197,6 +204,7 @@ object FirebaseKeyValidator {
         val createdAt = json.optLong("createdAt", System.currentTimeMillis())
         val deviceLimit = json.optInt("deviceLimit", 1)
         val note = json.optString("note", "")
+        val userName = json.optString("userName", json.optString("username", json.optString("name", "")))
 
         val boundList = mutableListOf<String>()
         val boundArr = json.optJSONArray("boundDevices")
@@ -215,13 +223,69 @@ object FirebaseKeyValidator {
           deviceLimit = deviceLimit,
           boundDevices = boundList,
           createdBy = "FIREBASE_REST",
-          note = note
+          note = note,
+          userName = userName
         )
       } else {
         null
       }
     } catch (e: Exception) {
       Log.d(TAG, "REST fetch exception for $url: ${e.message}")
+      null
+    }
+  }
+
+  /**
+   * Fetch key directly using SHA-256 hash path from RTDB
+   */
+  private fun fetchKeyViaHashRest(keyHash: String): VipKey? {
+    val url = FirebaseConfig.getRestUrlForHash(keyHash)
+    return try {
+      val request = Request.Builder()
+        .url(url)
+        .header("Accept", "application/json")
+        .get()
+        .build()
+
+      val response = httpClient.newCall(request).execute()
+      val bodyStr = response.body?.string()?.trim()
+
+      if (response.isSuccessful && !bodyStr.isNullOrEmpty() && bodyStr != "null") {
+        val json = JSONObject(bodyStr)
+        val statusStr = json.optString("status", "ACTIVE")
+        val status = try { KeyStatus.valueOf(statusStr.uppercase()) } catch (_: Exception) { KeyStatus.ACTIVE }
+        val expiresAt = json.optLong("expiresAt", -1L)
+        val createdAt = json.optLong("createdAt", System.currentTimeMillis())
+        val deviceLimit = json.optInt("deviceLimit", 1)
+        val note = json.optString("note", "")
+        val userName = json.optString("userName", json.optString("username", json.optString("name", "")))
+        val keyId = json.optString("keyId", keyHash)
+
+        val boundList = mutableListOf<String>()
+        val boundArr = json.optJSONArray("boundDevices")
+        if (boundArr != null) {
+          for (i in 0 until boundArr.length()) {
+            boundList.add(boundArr.getString(i))
+          }
+        }
+
+        VipKey(
+          keyId = keyId,
+          keyHash = keyHash,
+          status = status,
+          createdAt = createdAt,
+          expiresAt = expiresAt,
+          deviceLimit = deviceLimit,
+          boundDevices = boundList,
+          createdBy = "FIREBASE_REST_HASH",
+          note = note,
+          userName = userName
+        )
+      } else {
+        null
+      }
+    } catch (e: Exception) {
+      Log.d(TAG, "Hash REST fetch exception: ${e.message}")
       null
     }
   }
